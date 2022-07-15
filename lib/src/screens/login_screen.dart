@@ -1,7 +1,6 @@
-import 'dart:ffi';
-import 'dart:ui';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../mixins/validation_mixin.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -10,8 +9,10 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with ValidationMixin {
   final formKey = GlobalKey<FormState>();
+  String email = '';
+  String password = '';
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,6 +41,10 @@ class _LoginScreenState extends State<LoginScreen> {
         hintText: 'you@example.com',
       ),
       keyboardType: TextInputType.emailAddress,
+      validator: validateEmail,
+      onSaved: (value) {
+        email = value!;
+      },
     );
   }
 
@@ -53,13 +58,22 @@ class _LoginScreenState extends State<LoginScreen> {
         labelText: 'Password',
         hintText: '********',
       ),
+      validator: validatePassword,
+      onSaved: (value) {
+        password = value!;
+      },
     );
   }
 
   Widget submitButton() {
     return ElevatedButton(
       onPressed: () {
-        formKey.currentState?.reset();
+        if (formKey.currentState?.validate() == true) {
+          formKey.currentState?.save();
+          if (kDebugMode) {
+            print('Your email is $email and password is $password.');
+          }
+        }
       },
       child: const Text('Submit'),
     );
